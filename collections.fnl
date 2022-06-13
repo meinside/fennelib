@@ -107,6 +107,24 @@
             _ (. col 1))
         _ (collections.nth (collections.rest col) (- i 1))))))
 
+; Returns the first `n` elements from given sequential table `col`
+(fn collections.take [n col]
+  (if (collections.empty? col)
+    col
+    (if (> n 0)
+      (let [h (collections.head col)
+            r (collections.rest col)]
+        (collections.cons h (collections.take (- n 1) r)))
+      [])))
+
+; Drops first `n` elements from given sequential table `col` and returns the remaining
+(fn collections.drop [n col]
+  (if (collections.empty? col)
+    col
+    (if (= n 0)
+      col
+      (collections.drop (- n 1) (collections.rest col)))))
+
 ; Returns a sequential map with each element applied with function `f`
 ;(fn collections.map [f col]
 ;  (icollect [_ e (ipairs col)]
