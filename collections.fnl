@@ -44,6 +44,19 @@
     (table.insert new e)
     new))
 
+; Returns a reversed sequential table of `col`
+;(fn collections.reverse [col]
+;  (local out [])
+;  (each [_ e (ipairs col)]
+;    (table.insert out 1 e))
+;  out)
+(fn collections.reverse [col]
+  (if (collections.empty? col)
+    col
+    (let [h (collections.head col)
+          r (collections.rest col)]
+      (collections.conj (collections.reverse r) h))))
+
 ; Returns a concatenated sequential table with given sequential tables
 (fn collections.concat [...]
   (let [col [...]]
