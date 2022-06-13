@@ -4,7 +4,7 @@
 ; for handling collections
 ;
 ; created on : 2022.06.09.
-; last update: 2022.06.10.
+; last update: 2022.06.13.
 
 (local collections {})
 
@@ -43,6 +43,15 @@
   (let [new col]
     (table.insert new e)
     new))
+
+; Returns a concatenated sequential table with given sequential tables
+(fn collections.concat [...]
+  (let [col [...]]
+    (local out [])
+    (each [_ t (ipairs col)]
+      (each [_ e (ipairs t)]
+        (table.insert out e)))
+    out))
 
 ; Returns a range of numbers as a sequential table:
 ;
@@ -107,7 +116,7 @@
             acc2 (f acc h)]
         (collections.reduce f acc2 r))))
 
-; Filter elements from `col` which evaluates to true with function `f`
+; Filter elements from `col` which evaluates to true with function `f` (which takes one parameter)
 (fn collections.filter [f col]
   (if (collections.empty? col)
     col
@@ -117,6 +126,19 @@
       (if (f h)
         (collections.cons h filtered)
         filtered))))
+
+; Sort elements of `col` with function `f`
+; (function `f` takes two parameters,
+;  returns true when the first parameter is bigger than or equal to the second one, and
+;  returns false when the second one is bigger)
+(fn collections.sort [f col]
+  (if (collections.empty? col)
+    col
+    (let [pivot (collections.head col)
+          rest (collections.rest col)
+          ls (collections.filter #(f $1 pivot) rest)
+          rs (collections.filter #(not (f $1 pivot)) rest)]
+      (collections.concat (collections.sort f ls) [pivot] (collections.sort f rs)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Finally, return this module for requiring from the outer world
