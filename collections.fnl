@@ -73,9 +73,10 @@
 ; (collections.range 20 30 3) => [20 23 26 29]
 (fn collections.range [...]
   (fn _range [start end step acc]
-    (if (>= start end)
-      acc
-      (_range (+ start step) end step (collections.conj acc start))))
+    (if (or (and (> step 0) (< start end))
+            (and (< step 0) (> start end)))
+      (_range (+ start step) end step (collections.conj acc start))
+      acc))
   (let [args (table.pack ...)]
     (match (. args :n)
       0 nil
