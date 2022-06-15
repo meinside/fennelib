@@ -21,6 +21,10 @@ Place files in a sub directory like `./fennellib/`, and use them:
 
 Functions for handling collections.
 
+### test.fnl
+
+Functions for testing and debugging.
+
 ### (more to be added)
 
 ## Todo
