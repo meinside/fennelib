@@ -4,7 +4,7 @@
 ; for handling collections
 ;
 ; created on : 2022.06.09.
-; last update: 2022.06.13.
+; last update: 2022.06.21.
 
 (local collections {})
 
@@ -144,8 +144,8 @@
   (if (collections.empty? col)
     acc
     (let [h (collections.head col)
-            r (collections.rest col)
-            acc2 (f acc h)]
+          r (collections.rest col)
+          acc2 (f acc h)]
         (collections.reduce f acc2 r))))
 
 ; Filter elements from `col` which evaluates to true with function `f` (which takes one parameter)
@@ -167,9 +167,9 @@
   (if (collections.empty? col)
     col
     (let [pivot (collections.head col)
-          rest (collections.rest col)
-          ls (collections.filter #(f $1 pivot) rest)
-          rs (collections.filter #(not (f $1 pivot)) rest)]
+          r (collections.rest col)
+          ls (collections.filter #(f $1 pivot) r)
+          rs (collections.filter #(not (f $1 pivot)) r)]
       (collections.concat (collections.sort f ls) [pivot] (collections.sort f rs)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
