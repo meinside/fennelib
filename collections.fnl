@@ -8,67 +8,69 @@
 
 (local collections {})
 
-;; Returns if given sequential table `col` is empty or not
-(fn collections.empty? [col]
-  (or (= nil col) (= (length col) 0)))
+;; Returns if given sequential table `coll` is empty or not
+(fn collections.empty? [coll]
+  (or (= nil coll) (= (length coll) 0)))
 
-;; Returns the first element of given sequential table `col`
-(fn collections.head [col]
-  (match (length col)
+;; Returns the first element of given sequential table `coll`
+(fn collections.head [coll]
+  (match (length coll)
     0 nil
-    _ (. col 1)))
+    _ (. coll 1)))
 
 ;; Returns elements except the first one
-(fn collections.rest [col]
-  (match (length col)
-    0 nil
-    1 []
-    _ [(table.unpack col 2)]))
+(fn collections.rest [coll]
+  (if (collections.empty? coll)
+    coll
+    (match (length coll)
+      0 nil
+      1 []
+      _ [(table.unpack coll 2)])))
 
-;; Returns the last element of given sequential table `col`
-(fn collections.tail [col]
-  (let [count (length col)]
+;; Returns the last element of given sequential table `coll`
+(fn collections.tail [coll]
+  (let [count (length coll)]
     (match count
       0 nil
-      _ (. col count))))
+      _ (. coll count))))
 
-;; Returns a new sequential table with `e` as the head and `col` as the rest
-(fn collections.cons [e col]
-  (let [new col]
+;; Returns a new sequential table with `e` as the head and `coll` as the rest
+(fn collections.cons [e coll]
+  (let [new coll]
     (table.insert new 1 e)
     new))
 
-;; Returns a new sequential table with `e` as the new tail of `col`
-(fn collections.conj [col e]
-  (let [new col]
+;; Returns a new sequential table with `e` as the new tail of `coll`
+(fn collections.conj [coll e]
+  (let [new coll]
     (table.insert new e)
     new))
 
-;; Returns a reversed sequential table of `col`
-;(fn collections.reverse [col]
+;; Returns a reversed sequential table of `coll`
+;(fn collections.reverse [coll]
 ;  (local out [])
-;  (each [_ e (ipairs col)]
+;  (each [_ e (ipairs coll)]
 ;    (table.insert out 1 e))
 ;  out)
-(fn collections.reverse [col]
-  (if (collections.empty? col)
-    col
-    (let [h (collections.head col)
-          r (collections.rest col)]
+(fn collections.reverse [coll]
+  (if (collections.empty? coll)
+    coll
+    (let [h (collections.head coll)
+          r (collections.rest coll)]
       (collections.conj (collections.reverse r) h))))
 
 ;; Returns a concatenated sequential table with given sequential tables
 (fn collections.concat [...]
-  (let [col [...]]
+  (let [coll [...]]
     (local out [])
-    (each [_ t (ipairs col)]
+    (each [_ t (ipairs coll)]
       (each [_ e (ipairs t)]
         (table.insert out e)))
     out))
 
 ;; Returns a range of numbers as a sequential table:
 ;;
-;; (collections.range 5 => [1 2 3 4]
+;; (collections.range 5 => [0 1 2 3 4] ; (starts from 0)
 ;; (collections.range 10 15) => [10 11 12 13 14]
 ;; (collections.range 20 30 3) => [20 23 26 29]
 (fn collections.range [...]
@@ -81,7 +83,7 @@
     (match (. args :n)
       0 nil
       1 (let [end (. args 1)]
-          (_range 1 end 1 []))
+          (_range 0 end 1 []))
       2 (let [start (. args 1)
               end (. args 2)]
           (_range start end 1 []))
@@ -96,81 +98,123 @@
           (_range start end step acc))
       _ nil)))
 
-;; Returns the `i`th element from given sequential table `col`
-(fn collections.nth [col i]
-  (let [count (length col)]
-    (if (> i count)
+;; Returns the `n`th element from given sequential table `coll`
+;; (`n` starts from 1, not 0)
+(fn collections.nth [coll n]
+  (let [count (length coll)]
+    (if (> n count)
       nil
-      (match i
+      (match n
         0 nil
-        1 (match (length col)
+        1 (match count
             0 nil
-            _ (. col 1))
-        _ (collections.nth (collections.rest col) (- i 1))))))
+            _ (. coll 1))
+        _ (collections.nth (collections.rest coll) (- n 1))))))
 
-;; Returns the first `n` elements from given sequential table `col`
-(fn collections.take [n col]
-  (if (collections.empty? col)
-    col
+;; Returns the `n`th rest of given sequential table `coll`
+;; (`n` starts from 1, not 0)
+(fn collections.nthrest [coll n]
+  (if (< n 1)
+    nil
+    (match n
+      1 coll
+      _ (collections.nthrest (collections.rest coll) (- n 1)))))
+
+;; Returns the first `n` elements from given sequential table `coll`
+(fn collections.take [n coll]
+  (if (collections.empty? coll)
+    coll
     (if (> n 0)
-      (let [h (collections.head col)
-            r (collections.rest col)]
+      (let [h (collections.head coll)
+            r (collections.rest coll)]
         (collections.cons h (collections.take (- n 1) r)))
       [])))
 
-;; Drops first `n` elements from given sequential table `col` and returns the remaining
-(fn collections.drop [n col]
-  (if (collections.empty? col)
-    col
+;; Drops first `n` elements from given sequential table `coll` and returns the remaining
+(fn collections.drop [n coll]
+  (if (collections.empty? coll)
+    coll
     (if (= n 0)
-      col
-      (collections.drop (- n 1) (collections.rest col)))))
+      coll
+      (collections.drop (- n 1) (collections.rest coll)))))
 
 ;; Returns a sequential map with each element applied with function `f`
-;(fn collections.map [f col]
-;  (icollect [_ e (ipairs col)]
+;(fn collections.map [f coll]
+;  (icollect [_ e (ipairs coll)]
 ;   (f e)))
-(fn collections.map [f col]
-  (if (collections.empty? col)
-    col
-    (let [h (collections.head col)
-          r (collections.rest col)]
+(fn collections.map [f coll]
+  (if (collections.empty? coll)
+    coll
+    (let [h (collections.head coll)
+          r (collections.rest coll)]
       (collections.cons (f h) (collections.map f r)))))
 
 ;; Returns an accumulated value
 ;; which is calculated by function `f` (which takes two parameters)
-;; with initial value `acc` and each element of sequential table `col`
-(fn collections.reduce [f acc col]
-  (if (collections.empty? col)
+;; with initial value `acc` and each element of sequential table `coll`
+(fn collections.reduce [f acc coll]
+  (if (collections.empty? coll)
     acc
-    (let [h (collections.head col)
-          r (collections.rest col)
+    (let [h (collections.head coll)
+          r (collections.rest coll)
           acc2 (f acc h)]
         (collections.reduce f acc2 r))))
 
-;; Filter elements from `col` which evaluates to true with function `f` (which takes one parameter)
-(fn collections.filter [f col]
-  (if (collections.empty? col)
-    col
-    (let [h (collections.head col)
-          r (collections.rest col)
+;; Filter elements from `coll` which evaluates to true with function `f` (which takes one parameter)
+(fn collections.filter [f coll]
+  (if (collections.empty? coll)
+    coll
+    (let [h (collections.head coll)
+          r (collections.rest coll)
           filtered (collections.filter f r)]
       (if (f h)
         (collections.cons h filtered)
         filtered))))
 
-;; Sort elements of `col` with function `f`
+;; Sort elements of `coll` with function `f`
 ;; (function `f` takes two parameters,
 ;;  returns true when the first parameter is bigger than or equal to the second one, and
 ;;  returns false when the second one is bigger)
-(fn collections.sort [f col]
-  (if (collections.empty? col)
-    col
-    (let [pivot (collections.head col)
-          r (collections.rest col)
+(fn collections.sort [f coll]
+  (if (collections.empty? coll)
+    coll
+    (let [pivot (collections.head coll)
+          r (collections.rest coll)
           ls (collections.filter #(f $1 pivot) r)
           rs (collections.filter #(not (f $1 pivot)) r)]
       (collections.concat (collections.sort f ls) [pivot] (collections.sort f rs)))))
+
+;; Partition elements of `coll` with count `n`:
+;;
+;; (collections.partition 4 (collections.range 8)) => [[0 1 2 3] [4 5 6 7]]
+;; (collections.partition 4 (collections.range 10)) => [[0 1 2 3] [4 5 6 7]] ; drops immature partitions
+;; (collections.partition 2 4 (collections.range 10)) => [[0 1] [4 5] [8 9]]
+;; (collections.partition 3 3 [:x] (collections.range 10)) => [[0 1 2] [3 4 5] [6 7 8] [9 "x"]] ; fill immature partitions with pad
+;; (collections.partition 3 3 [:x :y :z :w] (collections.range 10)) => [[0 1 2] [3 4 5] [6 7 8] [9 "x" "y"]]
+(fn collections.partition [n ...]
+  (fn _partition [n step pad coll acc]
+    (if (collections.empty? coll)
+      acc
+      (let [p (collections.take n coll)
+            l (length p)]
+        (if (= n l)
+          (_partition n step pad (collections.nthrest coll (+ step 1)) (collections.conj acc p))
+          (if (collections.empty? pad)
+            acc
+            (_partition n step pad (collections.nthrest coll (+ step 1)) (collections.conj acc (collections.take n (collections.concat p pad)))))))))
+  (let [args (table.pack ...)]
+    (match (. args :n)
+      0 nil
+      1 (let [coll (. args 1)]
+          (_partition n n nil coll []))
+      2 (let [step (. args 1)
+              coll (. args 2)]
+          (_partition n step nil coll []))
+      3 (let [step (. args 1)
+              pad (. args 2)
+              coll (. args 3)]
+          (_partition n step pad coll []))
+      _ nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Finally, return this module for requiring from the outer world
