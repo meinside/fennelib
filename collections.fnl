@@ -134,6 +134,18 @@
         (collections.cons h (collections.take (- n 1) r)))
       [])))
 
+;; Returns successive items from sequential table `coll` while each item returns true with function `f` (which takes one parameter)
+(fn collections.take-while [f coll]
+  (fn _take-while [f coll acc]
+    (if (collections.empty? coll)
+      acc
+      (let [[h & r] coll
+            evaluated (f h)]
+        (if evaluated
+          (_take-while f r (collections.conj acc h))
+          acc))))
+  (_take-while f coll []))
+
 ;; Drops first `n` elements from given sequential table `coll` and returns the remaining
 (fn collections.drop [n coll]
   (if (collections.empty? coll)
@@ -171,6 +183,27 @@
       (if (f h)
         (collections.cons h filtered)
         filtered))))
+
+;; Returns if each element in `coll` returns true with function `f` (which takes one parameter)
+(fn collections.every? [f coll]
+  (if (collections.empty? coll)
+    true
+    (let [[h & r] coll
+          evaluated (f h)]
+      (if evaluated
+        (collections.every? f r)
+        false))))
+
+;; Returns the first element in `coll` that evaluates to true with function `f` (which takes one parameter),
+;; nil if none
+(fn collections.some [f coll]
+  (if (collections.empty? coll)
+    nil
+    (let [[h & r] coll
+          evaluated (f h)]
+      (if evaluated
+        h
+        (collections.some f r)))))
 
 ;; Sort elements of `coll` with function `f`
 ;; (function `f` takes two parameters,
@@ -215,6 +248,25 @@
               coll (. args 3)]
           (_partition n step pad coll []))
       _ nil)))
+
+;; Returns if given `key` exists in the table `coll`
+(fn collections.contains? [coll key]
+  (let [val (. coll key)]
+    (not (= nil val))))
+
+;; Returns keys of given table `coll`
+(fn collections.keys [coll]
+  (local out [])
+  (each [k _ (pairs coll)]
+    (table.insert out k))
+  out)
+
+;; Returns values of given table `coll`
+(fn collections.vals [coll]
+  (local out [])
+  (each [_ v (pairs coll)]
+    (table.insert out v))
+  out)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Finally, return this module for requiring from the outer world
