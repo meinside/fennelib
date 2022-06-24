@@ -4,15 +4,15 @@
 ;; for handling collections
 ;;
 ;; created on : 2022.06.09.
-;; last update: 2022.06.22.
+;; last update: 2022.06.24.
 
 (local collections {})
 
-;; Returns if given sequential table `coll` is empty or not
+;; Returns if `coll` is empty or not
 (fn collections.empty? [coll]
   (or (= nil coll) (= (length coll) 0)))
 
-;; Returns the first element of given sequential table `coll`
+;; Returns the first element of `coll`
 (fn collections.head [coll]
   (match (length coll)
     0 nil
@@ -27,7 +27,7 @@
       1 []
       _ [(table.unpack coll 2)])))
 
-;; Returns the last element of given sequential table `coll`
+;; Returns the last element of `coll`
 (fn collections.tail [coll]
   (let [count (length coll)]
     (match count
@@ -103,7 +103,7 @@
           (_range start end step acc))
       _ nil)))
 
-;; Returns the `n`th element from given sequential table `coll`
+;; Returns the `n`th element from `coll`
 ;; (`n` starts from 1, not 0)
 (fn collections.nth [coll n]
   (let [count (length coll)]
@@ -116,7 +116,7 @@
             _ (. coll 1))
         _ (collections.nth (collections.rest coll) (- n 1))))))
 
-;; Returns the `n`th rest of given sequential table `coll`
+;; Returns the `n`th rest of `coll`
 ;; (`n` starts from 1, not 0)
 (fn collections.nthrest [coll n]
   (if (< n 1)
@@ -125,7 +125,7 @@
       1 coll
       _ (collections.nthrest (collections.rest coll) (- n 1)))))
 
-;; Returns the first `n` elements from given sequential table `coll`
+;; Returns the first `n` elements from `coll`
 (fn collections.take [n coll]
   (if (collections.empty? coll)
     coll
@@ -134,7 +134,13 @@
         (collections.cons h (collections.take (- n 1) r)))
       [])))
 
-;; Returns successive items from sequential table `coll` while each item returns true with function `f` (which takes one parameter)
+;; Returns last `n` elements from `coll`
+(fn collections.take-last [n coll]
+  (let [taken (length (collections.take n coll))
+        dropped (- (length coll) taken)]
+    (collections.drop dropped coll)))
+
+;; Returns successive items from `coll` while each item returns true with function `f` (which takes one parameter)
 (fn collections.take-while [f coll]
   (fn _take-while [f coll acc]
     (if (collections.empty? coll)
@@ -146,13 +152,50 @@
           acc))))
   (_take-while f coll []))
 
-;; Drops first `n` elements from given sequential table `coll` and returns the remaining
+;; Drops first `n` elements of `coll` and returns the remaining
 (fn collections.drop [n coll]
   (if (collections.empty? coll)
     coll
     (if (= n 0)
       coll
       (collections.drop (- n 1) (collections.rest coll)))))
+
+;; Returns all but the last `n`(default 1) elements from `coll`
+;;
+;; (collections.drop-last [1 2 3 4]) => [1 2 3]
+;; (collections.drop-last 2 [1 2 3 4]) => [1 2]
+;; (collections.drop-last 4 [1 2]) => []
+(fn collections.drop-last [...]
+  (fn _drop-last [n coll]
+    (let [count (length (collections.drop n coll))]
+      (collections.take count coll)))
+  (let [args (table.pack ...)]
+    (match (. args :n)
+      1 (let [n 1
+              coll (. args 1)]
+          (_drop-last n coll))
+      2 (let [n (. args 1)
+              coll (. args 2)]
+          (_drop-last n coll))
+      _ nil)))
+
+;; TODO: drop-while
+
+;; TODO: split-at
+
+;; TODO: split-with
+
+;; TODO: merge
+
+;; TODO: merge-with
+
+;; TODO: zipmap
+
+;; TODO: distinct?
+
+;; TODO: group-by
+
+;; TODO: frequencies
 
 ;; Returns a sequential map with each element applied with function `f`
 ;(fn collections.map [f coll]
@@ -166,7 +209,7 @@
 
 ;; Returns an accumulated value
 ;; which is calculated by function `f` (which takes two parameters)
-;; with initial value `acc` and each element of sequential table `coll`
+;; with initial value `acc` and each element of `coll`
 (fn collections.reduce [f acc coll]
   (if (collections.empty? coll)
     acc
@@ -248,6 +291,17 @@
               coll (. args 3)]
           (_partition n step pad coll []))
       _ nil)))
+
+;; Returns items splitted whenever each one returns a new value with function `f` (which takes one parameter):
+;;
+;; (collections.partition-by #(= 0 (% $1 2)) [1 3 5 7 8 10 12 13 14]) => [[1 3 5 7] [8 10 12] [13] [14]]
+(fn collections.partition-by [f coll]
+  (if (collections.empty? coll)
+    coll
+    (let [[h & r] coll
+          evaluated (f h)
+          run (collections.cons h (collections.take-while #(= evaluated (f $1)) r))]
+      (collections.cons run (collections.partition-by f (collections.drop (length run) coll))))))
 
 ;; Returns if given `key` exists in the table `coll`
 (fn collections.contains? [coll key]
