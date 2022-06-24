@@ -46,6 +46,12 @@
     (table.insert new e)
     new))
 
+;; Returns a sequential table with `e` repeated `n` times
+(fn collections.repeat [n e]
+  (if (<= n 0)
+    []
+    (collections.cons e (collections.repeat (- n 1) e))))
+
 ;; Returns a reversed sequential table of `coll`
 ;(fn collections.reverse [coll]
 ;  (local out [])
@@ -55,8 +61,7 @@
 (fn collections.reverse [coll]
   (if (collections.empty? coll)
     coll
-    (let [h (collections.head coll)
-          r (collections.rest coll)]
+    (let [[h & r] coll]
       (collections.conj (collections.reverse r) h))))
 
 ;; Returns a concatenated sequential table with given sequential tables
@@ -125,8 +130,7 @@
   (if (collections.empty? coll)
     coll
     (if (> n 0)
-      (let [h (collections.head coll)
-            r (collections.rest coll)]
+      (let [[h & r] coll]
         (collections.cons h (collections.take (- n 1) r)))
       [])))
 
@@ -145,8 +149,7 @@
 (fn collections.map [f coll]
   (if (collections.empty? coll)
     coll
-    (let [h (collections.head coll)
-          r (collections.rest coll)]
+    (let [[h & r] coll]
       (collections.cons (f h) (collections.map f r)))))
 
 ;; Returns an accumulated value
@@ -155,17 +158,15 @@
 (fn collections.reduce [f acc coll]
   (if (collections.empty? coll)
     acc
-    (let [h (collections.head coll)
-          r (collections.rest coll)
+    (let [[h & r] coll
           acc2 (f acc h)]
-        (collections.reduce f acc2 r))))
+      (collections.reduce f acc2 r))))
 
 ;; Filter elements from `coll` which evaluates to true with function `f` (which takes one parameter)
 (fn collections.filter [f coll]
   (if (collections.empty? coll)
     coll
-    (let [h (collections.head coll)
-          r (collections.rest coll)
+    (let [[h & r] coll
           filtered (collections.filter f r)]
       (if (f h)
         (collections.cons h filtered)
@@ -178,8 +179,7 @@
 (fn collections.sort [f coll]
   (if (collections.empty? coll)
     coll
-    (let [pivot (collections.head coll)
-          r (collections.rest coll)
+    (let [[pivot & r] coll
           ls (collections.filter #(f $1 pivot) r)
           rs (collections.filter #(not (f $1 pivot)) r)]
       (collections.concat (collections.sort f ls) [pivot] (collections.sort f rs)))))
