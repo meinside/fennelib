@@ -189,7 +189,16 @@
 
 ;; TODO: merge-with
 
-;; TODO: zipmap
+;; Returns a table with given keys and values
+(fn collections.zipmap [keys vals]
+  (fn _zipmap [keys vals acc]
+    (if (or (collections.empty? keys) (collections.empty? vals))
+      acc
+      (let [[k & ks] keys
+            [v & vs] vals]
+        (tset acc k v)
+        (_zipmap ks vs acc))))
+  (_zipmap keys vals {}))
 
 ;; TODO: distinct?
 
