@@ -296,12 +296,15 @@
 ;;
 ;; (collections.partition-by #(= 0 (% $1 2)) [1 3 5 7 8 10 12 13 14]) => [[1 3 5 7] [8 10 12] [13] [14]]
 (fn collections.partition-by [f coll]
-  (if (collections.empty? coll)
-    coll
-    (let [[h & r] coll
-          evaluated (f h)
-          run (collections.cons h (collections.take-while #(= evaluated (f $1)) r))]
-      (collections.cons run (collections.partition-by f (collections.drop (length run) coll))))))
+  (fn _partition-by [f coll acc]
+    (if (collections.empty? coll)
+      acc
+      (let [[h & r] coll
+            evaluated (f h)
+            run (collections.cons h (collections.take-while #(= evaluated (f $1)) r))
+            remaining (collections.drop (length run) coll)]
+        (_partition-by f remaining (collections.conj acc run)))))
+  (_partition-by f coll []))
 
 ;; Returns if given `key` exists in the table `coll`
 (fn collections.contains? [coll key]
