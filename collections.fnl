@@ -179,7 +179,14 @@
           (_drop-last n coll))
       _ nil)))
 
-;; TODO: drop-while
+;; Returns a sequential table with items in `coll`,
+;; starting from the first item which evaluates to false with function `f` (which takes one parameter)
+(fn collections.drop-while [f coll]
+    (let [[h & r] coll
+          evaluated (f h)]
+      (if evaluated
+        (collections.drop-while f r)
+        coll)))
 
 ;; TODO: split-at
 
