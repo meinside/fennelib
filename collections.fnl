@@ -217,7 +217,16 @@
           (_distinct? r (collections.tset hash h true))))))
   (_distinct? coll {}))
 
-;; TODO: distinct
+;; Returns a sequential table with duplicated items removed
+(fn collections.distinct [coll]
+  (fn _distinct [coll hash acc]
+    (if (collections.empty? coll)
+      acc
+      (let [[h & r] coll]
+        (if (collections.contains? hash h)
+          (_distinct r hash acc)
+          (_distinct r (collections.tset hash h true) (collections.conj acc h))))))
+  (_distinct coll {} []))
 
 ;; TODO: group-by
 
