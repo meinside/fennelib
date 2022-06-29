@@ -188,11 +188,15 @@
         (collections.drop-while f r)
         coll)))
 
-;; Returns a splitted list of sequential table `coll` at position `n` (0-based)
+;; Returns splitted lists of sequential table `coll` at position `n` (0-based),
+;; [(collections.take n coll) (collections.drop n coll)]
 (fn collections.split-at [n coll]
   [(collections.take n coll) (collections.drop n coll)])
 
-;; TODO: split-with
+;; Returns splitted lists of sequential table `coll`,
+;; [(collections.take-while f coll) (collections.drop-while f coll)]
+(fn collections.split-with [f coll]
+  [(collections.take-while f coll) (collections.drop-while f coll)])
 
 ;; TODO: merge
 
