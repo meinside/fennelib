@@ -188,7 +188,9 @@
         (collections.drop-while f r)
         coll)))
 
-;; TODO: split-at
+;; Returns a splitted list of sequential table `coll` at position `n` (0-based)
+(fn collections.split-at [n coll]
+  [(collections.take n coll) (collections.drop n coll)])
 
 ;; TODO: split-with
 
