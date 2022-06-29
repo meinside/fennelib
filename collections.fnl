@@ -203,11 +203,21 @@
       acc
       (let [[k & ks] keys
             [v & vs] vals]
-        (tset acc k v)
-        (_zipmap ks vs acc))))
+        (_zipmap ks vs (collections.tset acc k v)))))
   (_zipmap keys vals {}))
 
-;; TODO: distinct?
+;; Returns if all items in `coll` are different
+(fn collections.distinct? [coll]
+  (fn _distinct? [coll hash]
+    (if (collections.empty? coll)
+      true
+      (let [[h & r] coll]
+        (if (collections.contains? hash h)
+          false
+          (_distinct? r (collections.tset hash h true))))))
+  (_distinct? coll {}))
+
+;; TODO: distinct
 
 ;; TODO: group-by
 
@@ -340,6 +350,15 @@
   (each [_ v (pairs coll)]
     (table.insert out v))
   out)
+
+;; Returns a new collection consisting of `to` with items of `from` conjoined
+(fn collections.into [to from]
+  (collections.reduce collections.conj to from))
+
+;; Returns a table `coll` with key `k` and `v` applied (Apply `tset` and return it)
+(fn collections.tset [coll k v]
+  (tset coll k v)
+  coll)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Finally, return this module for requiring from the outer world
