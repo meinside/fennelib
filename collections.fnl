@@ -224,8 +224,6 @@
                                (tset out k v))) ; table (map)
                            out) {} coll)))
 
-;; TODO: merge-with
-
 ;; Returns a table with given keys and values
 (fn collections.zipmap [keys vals]
   (fn _zipmap [keys vals acc]
@@ -258,7 +256,19 @@
           (_distinct r (collections.tset hash h true) (collections.conj acc h))))))
   (_distinct coll {} []))
 
-;; TODO: group-by
+;; Returns a table of the elements of sequential table `coll`,
+;; each key is the result of function `f` (which takes one element) on each element,
+;; and each value is the sequential tables of the elements grouped by each key
+(fn collections.group-by [f coll]
+  (fn _group-by [f coll acc]
+    (if (collections.empty? coll)
+      acc
+      (let [[h & r] coll
+            key (f h)]
+        (match (. acc key)
+          value (_group-by f r (collections.tset acc key (collections.conj value h)))
+          _ (_group-by f r (collections.tset acc key [h]))))))
+  (_group-by f coll {}))
 
 ;; TODO: frequencies
 
