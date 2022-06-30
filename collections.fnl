@@ -270,7 +270,15 @@
           _ (_group-by f r (collections.tset acc key [h]))))))
   (_group-by f coll {}))
 
-;; TODO: frequencies
+;; Returns a table of which keys are distinct items in table `coll`
+;; and values are the number of appearances
+;;
+;; NOTE: keys are converted to string with `tostring` due to the confusion with sequential tables
+(fn collections.frequencies [coll]
+  (collections.reduce #(let [hash $1
+                             value (tostring $2)
+                             count (or (. hash value) 0)]
+                         (collections.tset hash value (+ 1 count))) {} coll))
 
 ;; Returns a sequential map with each element applied with function `f`
 ;(fn collections.map [f coll]
@@ -289,8 +297,8 @@
   (if (collections.empty? coll)
     acc
     (let [[h & r] coll
-          acc2 (f acc h)]
-      (collections.reduce f acc2 r))))
+          applied (f acc h)]
+      (collections.reduce f applied r))))
 
 ;; Filter elements from `coll` which evaluates to true with function `f` (which takes one parameter)
 (fn collections.filter [f coll]
@@ -424,8 +432,9 @@
 
 ;; Returns a table `coll` with key `k` and `v` applied (Apply `tset` and return it)
 (fn collections.tset [coll k v]
-  (tset coll k v)
-  coll)
+  (let [tbl coll]
+    (tset tbl k v)
+    tbl))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Finally, return this module for requiring from the outer world
