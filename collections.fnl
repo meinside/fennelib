@@ -4,21 +4,36 @@
 ;; for handling collections
 ;;
 ;; created on : 2022.06.09.
-;; last update: 2022.06.24.
+;; last update: 2022.06.30.
 
 (local collections {})
 
+;; Returns the argument
+(fn collections.identity [x]
+  x)
+
+;; Returns the count of elements in given table `coll`
+(fn collections.count [coll]
+  (var count 0)
+  (each [_ _ (pairs coll)]
+    (set count (+ count 1)))
+  count)
+
+;; Returns if `x` is a table
+(fn collections.table? [x]
+  (= "table" (type x)))
+
 ;; Returns if `coll` is empty or not
 (fn collections.empty? [coll]
-  (or (= nil coll) (= (length coll) 0)))
+  (or (= nil coll) (= (collections.count coll) 0)))
 
-;; Returns the first element of `coll`
+;; Returns the first element of sequential table `coll`
 (fn collections.head [coll]
   (match (length coll)
     0 nil
     _ (. coll 1)))
 
-;; Returns elements except the first one
+;; Returns elements of sequential table `coll` except the first one
 (fn collections.rest [coll]
   (if (collections.empty? coll)
     coll
@@ -27,7 +42,7 @@
       1 []
       _ [(table.unpack coll 2)])))
 
-;; Returns the last element of `coll`
+;; Returns the last element of sequential table `coll`
 (fn collections.tail [coll]
   (let [count (length coll)]
     (match count
@@ -103,7 +118,7 @@
           (_range start end step acc))
       _ nil)))
 
-;; Returns the `n`th element from `coll`
+;; Returns the `n`th element from sequential table `coll`
 ;; (`n` starts from 1, not 0)
 (fn collections.nth [coll n]
   (let [count (length coll)]
@@ -134,7 +149,7 @@
         (collections.cons h (collections.take (- n 1) r)))
       [])))
 
-;; Returns last `n` elements from `coll`
+;; Returns last `n` elements from sequential table `coll`
 (fn collections.take-last [n coll]
   (let [taken (length (collections.take n coll))
         dropped (- (length coll) taken)]
@@ -160,7 +175,7 @@
       coll
       (collections.drop (- n 1) (collections.rest coll)))))
 
-;; Returns all but the last `n`(default 1) elements from `coll`
+;; Returns all but the last `n`(default 1) elements from sequential table `coll`
 ;;
 ;; (collections.drop-last [1 2 3 4]) => [1 2 3]
 ;; (collections.drop-last 2 [1 2 3 4]) => [1 2]
@@ -198,7 +213,16 @@
 (fn collections.split-with [f coll]
   [(collections.take-while f coll) (collections.drop-while f coll)])
 
-;; TODO: merge
+;; Returns a table of which rest of `...` are merged into the first one
+(fn collections.merge [...]
+  (let [coll [...]]
+    (collections.reduce #(let [in (or $2 {})
+                               out $1]
+                           (each [k v (pairs in)]
+                             (if (collections.array? in)
+                               (table.insert out v) ; sequential table (array)
+                               (tset out k v))) ; table (map)
+                           out) {} coll)))
 
 ;; TODO: merge-with
 
@@ -301,7 +325,7 @@
           rs (collections.filter #(not (f $1 pivot)) r)]
       (collections.concat (collections.sort f ls) [pivot] (collections.sort f rs)))))
 
-;; Partition elements of `coll` with count `n`:
+;; Partition elements of sequential table `coll` with count `n`:
 ;;
 ;; (collections.partition 4 (collections.range 8)) => [[0 1 2 3] [4 5 6 7]]
 ;; (collections.partition 4 (collections.range 10)) => [[0 1 2 3] [4 5 6 7]] ; drops immature partitions
@@ -366,9 +390,27 @@
     (table.insert out v))
   out)
 
+;; Returns if `x` is a sequential table
+;; (https://stackoverflow.com/questions/6077006/how-can-i-check-if-a-lua-table-contains-only-sequential-numeric-indices)
+(fn collections.array? [x]
+  (if (collections.table? x)
+    (if (next x)
+      (let [indices (collections.range 1 (+ 1 (collections.count x)))]
+        (= nil (collections.some #(= nil (. x $1)) indices)))
+      true)
+    false))
+
+;; Returns if `x` is a table but not sequential
+(fn collections.map? [x]
+  (if (collections.table? x)
+    (if (next x)
+      (not (collections.array? x))
+      true)
+    false))
+
 ;; Returns a new collection consisting of `to` with items of `from` conjoined
 (fn collections.into [to from]
-  (collections.reduce collections.conj to from))
+  (collections.merge to from))
 
 ;; Returns a table `coll` with key `k` and `v` applied (Apply `tset` and return it)
 (fn collections.tset [coll k v]
