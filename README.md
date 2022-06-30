@@ -20,7 +20,7 @@ or import all functions with:
 ```fennel
 (local f (require :fennelib)) ; fennelib/init.fnl
 
-(f.dump-table {:a 1 :b 2 :c {:d 4 :e 5}})
+(f.prettify {:a 1 :b 2 :c {:d 4 :e 5}})
 ```
 
 ## Modules
@@ -28,6 +28,10 @@ or import all functions with:
 ### collections.fnl
 
 Functions for handling collections.
+
+### math.fnl
+
+Functions for handling numbers.
 
 ### test.fnl
 
