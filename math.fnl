@@ -4,20 +4,26 @@
 ;; for dealing with numbers
 ;;
 ;; created on : 2022.06.24.
-;; last update: 2022.06.24.
+;; last update: 2022.06.30.
 
 (local math {})
 
-;; Returns a number increased by 1
+;; Return a number `n` increased by 1.
 (fn math.inc [n]
+  {:fnl/docstring "Return a number `n` increased by 1."
+   :fnl/arglist [n]}
   (+ n 1))
 
-;; Returns a number decreased by 1
+;; Return a number `n` decreased by 1.
 (fn math.dec [n]
+  {:fnl/docstring "Return a number `n` decreased by 1."
+   :fnl/arglist [n]}
   (- n 1))
 
-;; Return the maximum value from given sequential table
+;; Return the maximum value from given sequential table `coll`.
 (fn math.max [coll]
+  {:fnl/docstring "Return the maximum value from given sequential table `coll`."
+   :fnl/arglist [coll]}
   (fn _max [coll mx]
     (if (> (length coll) 0)
       (let [[h & r] coll]
@@ -30,8 +36,10 @@
     (let [[h & r] coll] 
       (_max r h))))
 
-;; Return the minimum value from given sequential table
+;; Return the minimum value from given sequential table `coll`.
 (fn math.min [coll]
+  {:fnl/docstring "Return the minimum value from given sequential table `coll`."
+   :fnl/arglist [coll]}
   (fn _min [coll mn]
     (if (> (length coll) 0)
       (let [[h & r] coll]
@@ -44,24 +52,34 @@
     (let [[h & r] coll] 
       (_min r h))))
 
-;; Returns if given number is positive
+;; Return if given number `n` is positive.
 (fn math.pos? [n]
+  {:fnl/docstring "Return if given number `n` is positive."
+   :fnl/arglist [n]}
   (> n 0))
 
-;; Returns if given number is positive
+;; Return if given number `n` is negative.
 (fn math.neg? [n]
+  {:fnl/docstring "Return if given number `n` is negative."
+   :fnl/arglist [n]}
   (< n 0))
 
-;; Returns if given number is zero
+;; Return if given number `n` is zero.
 (fn math.zero? [n]
+  {:fnl/docstring "Return if given number `n` is zero."
+   :fnl/arglist [n]}
   (= n 0))
 
-;; Returns if given number is even
+;; Return if given number `n` is even.
 (fn math.even? [n]
+  {:fnl/docstring "Return if given number `n` is even."
+   :fnl/arglist [n]}
   (= 0 (% n 2)))
 
-;; Returns if given number is odd
+;; Return if given number `n` is odd.
 (fn math.odd? [n]
+  {:fnl/docstring "Return if given number `n` is odd."
+   :fnl/arglist [n]}
   (not (math.even? n)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

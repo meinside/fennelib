@@ -8,10 +8,12 @@
 
 (local test {})
 
-;; Returns pretty-printed contents of given table `t` with a number of indentation `indent`
+;; Returns pretty-printed contents of given table `t` with a number of indentation `indent`.
 ;;
 ;; (referenced: https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console)
 (fn test.prettify [t indent]
+  {:fnl/docstring "Returns pretty-printed contents of given table `t` with a number of indentation `indent`."
+   :fnl/arglist [table indent]}
   (fn _table->lines [t indent]
     (local out [])
     (each [k v (pairs t)]
