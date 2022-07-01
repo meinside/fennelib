@@ -3,7 +3,7 @@
 ;; all functions in `fennelib`
 ;;
 ;; created on : 2022.06.23.
-;; last update: 2022.06.24.
+;; last update: 2022.07.01.
 
 (local fennelib {})
 
@@ -19,7 +19,7 @@
 ;; Finally, return all merged things
 (all-merged [
              (require :fennelib/collections)
-             (require :fennelib/math)
+             (require :fennelib/num)
              (require :fennelib/test)
              ;; TODO: add more packages here
              ])

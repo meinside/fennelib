@@ -29,9 +29,9 @@ or import all functions with:
 
 Functions for handling collections.
 
-### math.fnl
+### num.fnl
 
-Functions for handling numbers.
+Functions for handling numbers. (includes original math functions)
 
 ### test.fnl
 

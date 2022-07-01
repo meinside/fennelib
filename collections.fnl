@@ -4,9 +4,16 @@
 ;; for handling collections
 ;;
 ;; created on : 2022.06.09.
-;; last update: 2022.06.30.
+;; last update: 2022.07.01.
 
 (local collections {})
+
+;; for requiring my own packages
+(local n (let [in-fennelib (string.match (os.getenv "PWD") "/fennelib$")
+               sep (package.config:sub 1 1)]
+           (if in-fennelib
+             (require :num)
+             (require (.. :fennelib sep :num)))))
 
 ;; Return the argument.
 (fn collections.identity [x]
@@ -20,7 +27,7 @@
    :fnl/arglist [coll]}
   (var count 0)
   (each [_ _ (pairs coll)]
-    (set count (+ count 1)))
+    (set count (n.inc count)))
   count)
 
 ;; Return if `x` is a table.
@@ -334,7 +341,7 @@
   (collections.reduce #(let [hash $1
                              value (tostring $2)
                              count (or (. hash value) 0)]
-                         (collections.tset hash value (+ 1 count))) {} coll))
+                         (collections.tset hash value (n.inc count))) {} coll))
 
 ;; Return a sequential map with each element of `coll` evaluated with function `f`.
 ;(fn collections.map [f coll]
@@ -427,10 +434,10 @@
       (let [p (collections.take n coll)
             l (length p)]
         (if (= n l)
-          (_partition n step pad (collections.nthrest coll (+ step 1)) (collections.conj acc p))
+          (_partition n step pad (collections.nthrest coll (n.inc step)) (collections.conj acc p))
           (if (collections.empty? pad)
             acc
-            (_partition n step pad (collections.nthrest coll (+ step 1)) (collections.conj acc (collections.take n (collections.concat p pad)))))))))
+            (_partition n step pad (collections.nthrest coll (n.inc step)) (collections.conj acc (collections.take n (collections.concat p pad)))))))))
   (let [args (table.pack ...)]
     (match (. args :n)
       0 nil
@@ -493,7 +500,7 @@
    :fnl/arglist [x]}
   (if (collections.table? x)
     (if (next x)
-      (let [indices (collections.range 1 (+ 1 (collections.count x)))]
+      (let [indices (collections.range 1 (n.inc (collections.count x)))]
         (= nil (collections.some #(= nil (. x $1)) indices)))
       true)
     false))
