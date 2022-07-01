@@ -9,11 +9,11 @@
 (local collections {})
 
 ;; for requiring my own packages
-(local n (let [in-fennelib (string.match (os.getenv "PWD") "/fennelib$")
-               sep (package.config:sub 1 1)]
-           (if in-fennelib
-             (require :num)
-             (require (.. :fennelib sep :num)))))
+(local num (let [in-fennelib (string.match (os.getenv "PWD") "/fennelib$")
+                 sep (package.config:sub 1 1)]
+             (if in-fennelib
+               (require :num)
+               (require (.. :fennelib sep :num)))))
 
 ;; Return the argument.
 (fn collections.identity [x]
@@ -27,7 +27,7 @@
    :fnl/arglist [coll]}
   (var count 0)
   (each [_ _ (pairs coll)]
-    (set count (n.inc count)))
+    (set count (num.inc count)))
   count)
 
 ;; Return if `x` is a table.
@@ -341,7 +341,7 @@
   (collections.reduce #(let [hash $1
                              value (tostring $2)
                              count (or (. hash value) 0)]
-                         (collections.tset hash value (n.inc count))) {} coll))
+                         (collections.tset hash value (num.inc count))) {} coll))
 
 ;; Return a sequential map with each element of `coll` evaluated with function `f`.
 ;(fn collections.map [f coll]
@@ -434,10 +434,10 @@
       (let [p (collections.take n coll)
             l (length p)]
         (if (= n l)
-          (_partition n step pad (collections.nthrest coll (n.inc step)) (collections.conj acc p))
+          (_partition n step pad (collections.nthrest coll (num.inc step)) (collections.conj acc p))
           (if (collections.empty? pad)
             acc
-            (_partition n step pad (collections.nthrest coll (n.inc step)) (collections.conj acc (collections.take n (collections.concat p pad)))))))))
+            (_partition n step pad (collections.nthrest coll (num.inc step)) (collections.conj acc (collections.take n (collections.concat p pad)))))))))
   (let [args (table.pack ...)]
     (match (. args :n)
       0 nil
@@ -451,6 +451,7 @@
               coll (. args 3)]
           (_partition n step pad coll []))
       _ nil)))
+(collections.partition 3 (collections.range 0 100))
 
 ;; Return items of `coll` splitted whenever each one evaluates to a new value with function `f` (which takes one parameter).
 ;;
@@ -500,7 +501,7 @@
    :fnl/arglist [x]}
   (if (collections.table? x)
     (if (next x)
-      (let [indices (collections.range 1 (n.inc (collections.count x)))]
+      (let [indices (collections.range 1 (num.inc (collections.count x)))]
         (= nil (collections.some #(= nil (. x $1)) indices)))
       true)
     false))
