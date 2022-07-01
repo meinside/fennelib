@@ -4,9 +4,14 @@
 ;; for dealing with numbers
 ;;
 ;; created on : 2022.06.24.
-;; last update: 2022.06.30.
+;; last update: 2022.07.01.
 
 (local math {})
+
+;; XXX: import original math functions
+(let [builtins (require :math)]
+  (each [name f (pairs builtins)]
+    (tset math name f)))
 
 ;; Return a number `n` increased by 1.
 (fn math.inc [n]
