@@ -6,21 +6,27 @@
 ;; last update: 2022.07.01.
 
 (local fennelib {})
+(local local-module-names [
+                           :collections
+                           :num
+                           :test
+                           ;; TODO: add more packages here
+                           ])
 
-;; for merging every function to `fennelib`
-(fn all-merged [packages]
-  (local fennelib {})
-  (each [_ package (ipairs packages)]
+;; for requiring module without error
+(fn requirex [name]
+  (let [in-fennelib (string.match (os.getenv "PWD") "/fennelib$")
+        sep (package.config:sub 1 1)]
+    (if in-fennelib
+      (require name)
+      (require (.. :fennelib sep name)))))
+
+;; merge all functions to `fennelib`
+(each [_ name (ipairs local-module-names)]
+  (let [package (requirex name)]
     (each [name f (pairs package)]
-      (tset fennelib name f)))
-  fennelib)
+      (tset fennelib name f))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Finally, return all merged things
-(all-merged [
-             (require :fennelib/collections)
-             (require :fennelib/num)
-             (require :fennelib/test)
-             ;; TODO: add more packages here
-             ])
+fennelib
 
