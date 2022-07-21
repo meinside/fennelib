@@ -4,7 +4,7 @@
 ;; for handling collections
 ;;
 ;; created on : 2022.06.09.
-;; last update: 2022.07.01.
+;; last update: 2022.07.21.
 
 (local collections {})
 
@@ -41,6 +41,25 @@
   {:fnl/docstring "Return if `coll` is empty or not."
    :fnl/arglist [coll]}
   (or (= nil coll) (= (collections.count coll) 0)))
+
+;; Return a value mapped to a key `k` from a table `coll`; if it is nil, return `not-found` instead.
+(fn collections.get [coll k not-found]
+  {:fnl/docstring "Return a value mapped to a key `k` from a table `coll`; if it is nil, return `not-found` instead."
+   :fnl/arglist [coll k not-found]}
+  (let [not-found (or not-found nil)]
+    (or (. coll k) not-found)))
+
+;; Return a value mapped to keys in `ks` from nested table `coll`; if it is nil, return `not-found` instead.
+(fn collections.get-in [coll ks not-found]
+  {:fnl/docstring "Return a value mapped to keys in `ks` from nested table `coll`; if it is nil, return `not-found` instead."
+   :fnl/arglist [coll ks not-found]}
+  (let [not-found (or not-found nil)
+        [h & r] ks]
+    (if (collections.map? coll)
+      (if (collections.empty? r)
+        (or (. coll h) not-found)
+        (collections.get-in (. coll h) r not-found))
+      not-found)))
 
 ;; Return the first element of sequential table `coll`.
 (fn collections.head [coll]
