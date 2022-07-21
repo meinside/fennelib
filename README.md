@@ -29,6 +29,10 @@ or import all functions with:
 
 Functions for handling collections.
 
+### convert.fnl
+
+Functions for converting various things.
+
 ### http.fnl
 
 Functions for HTTP requests.
