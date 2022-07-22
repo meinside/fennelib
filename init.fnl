@@ -3,15 +3,14 @@
 ;; all functions in `fennelib`
 ;;
 ;; created on : 2022.06.23.
-;; last update: 2022.07.01.
+;; last update: 2022.07.22.
 
 (local fennelib {})
-(local local-module-names [
-                           :collections
+(local local-module-names [:collections
+                           :convert
+                           :http
                            :num
-                           :test
-                           ;; TODO: add more packages here
-                           ])
+                           :test]) ; TODO: add more packages here
 
 ;; for requiring module without error
 (fn requirex [name]
