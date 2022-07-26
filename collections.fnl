@@ -4,7 +4,7 @@
 ;; for handling collections
 ;;
 ;; created on : 2022.06.09.
-;; last update: 2022.07.21.
+;; last update: 2022.07.26.
 
 (local collections {})
 
@@ -470,7 +470,6 @@
               coll (. args 3)]
           (_partition n step pad coll []))
       _ nil)))
-(collections.partition 3 (collections.range 0 100))
 
 ;; Return items of `coll` splitted whenever each one evaluates to a new value with function `f` (which takes one parameter).
 ;;
