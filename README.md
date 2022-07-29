@@ -1,12 +1,22 @@
 # fennelib
 
-Personal fennel library for studying and tinkering.
+Personal fennel library for studying and tinkering,
+
+which aims to be a general toolset for ordinary tasks.
 
 Some functions will be just (re)implementations of other Lispy languages'.
 
 ## How to use
 
-Place files in a sub directory like `./fennellib/`, and use them:
+Place files in a sub directory like `./fennellib/`,
+
+or add this repository as a submodule like:
+
+```bash
+git submodule add https://github.com/meinside/fennelib
+```
+
+and use them:
 
 ```fennel
 ; import specific modules
@@ -33,9 +43,21 @@ Functions for handling collections.
 
 Functions for converting various things.
 
+Supported types so far:
+
+- [x] JSON string <-> table
+- [x] CSV string -> table
+- [ ] and other things
+
 ### http.fnl
 
 Functions for HTTP requests.
+
+Supported methods so far:
+
+- [x] HTTP GET
+- [x] HTTP POST with body
+- [ ] and other things
 
 ### num.fnl
 
@@ -46,6 +68,14 @@ Functions for handling numbers. (includes original math functions)
 Functions for testing and debugging.
 
 ### (more to be added)
+
+## Dependencies
+
+### luarocks packages
+
+- lua-http ($ luarocks install http)
+- json-lua ($ luarocks install json-lua)
+- ftcsv ($ luarocks install ftcsv)
 
 ## Todo
 
