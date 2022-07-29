@@ -37,7 +37,7 @@ or import all functions with:
 
 ### collections.fnl
 
-Functions for handling collections.
+Functions for handling collections. Referenced: [clojure core](https://github.com/clojure/clojure/blob/master/src/clj/clojure/core.clj).
 
 ### convert.fnl
 
